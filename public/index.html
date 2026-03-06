@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCTV // GRID</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+</head>
+<body>
+
+<div class="shell">
+
+    <!-- ТОПБАР -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">
+                <span class="logo-bracket">[</span>
+                CCTV
+                <span class="logo-slash">//</span>
+                GRID
+                <span class="logo-bracket">]</span>
+            </div>
+            <div class="topbar-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText">ИНИЦИАЛИЗАЦИЯ</span>
+            </div>
+        </div>
+        <div class="topbar-center">
+            <!-- Выбор сетки -->
+            <div class="grid-selector">
+                <button class="grid-btn active" data-grid="1" title="1 камера">
+                    <svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16"/></svg>
+                </button>
+                <button class="grid-btn" data-grid="2" title="2 камеры">
+                    <svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="16"/><rect x="11" y="2" width="7" height="16"/></svg>
+                </button>
+                <button class="grid-btn" data-grid="4" title="4 камеры">
+                    <svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7"/><rect x="11" y="2" width="7" height="7"/><rect x="2" y="11" width="7" height="7"/><rect x="11" y="11" width="7" height="7"/></svg>
+                </button>
+                <button class="grid-btn" data-grid="8" title="8 камер">
+                    <svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="3.5"/><rect x="11" y="2" width="7" height="3.5"/><rect x="2" y="7" width="7" height="3.5"/><rect x="11" y="7" width="7" height="3.5"/><rect x="2" y="12" width="7" height="3.5"/><rect x="11" y="12" width="7" height="3.5"/><rect x="2" y="16.5" width="7" height="3.5"/><rect x="11" y="16.5" width="7" height="3.5"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-time" id="topbarTime">00:00:00</div>
+            <div class="topbar-date" id="topbarDate">-- --- ----</div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНАЯ СЕТКА -->
+    <main class="grid-main" id="gridMain">
+        <!-- Ячейки рендерятся через JS -->
+    </main>
+
+    <!-- ПАНЕЛЬ КАМЕР (снизу) -->
+    <footer class="cam-panel" id="camPanel">
+        <div class="cam-panel-inner" id="camPanelInner">
+            <!-- Список камер рендерится через JS -->
+        </div>
+    </footer>
+
+</div>
+
+<!-- АДМИН ПАНЕЛЬ -->
+<div class="admin-overlay hidden" id="adminOverlay">
+    <div class="admin-panel">
+        <div class="admin-header">
+            <div class="admin-title">
+                <span class="logo-bracket">[</span>
+                DEV
+                <span class="logo-slash">//</span>
+                PANEL
+                <span class="logo-bracket">]</span>
+            </div>
+            <button class="admin-close" id="adminClose">×</button>
+        </div>
+
+        <!-- Экран пароля -->
+        <div id="adminAuthScreen">
+            <div class="admin-auth">
+                <div class="admin-auth-icon">⬡</div>
+                <div class="admin-auth-title">АВТОРИЗАЦИЯ</div>
+                <div class="admin-auth-sub">Введи пароль разработчика</div>
+                <div class="admin-auth-form">
+                    <input type="password" id="adminPassInput" placeholder="••••••" autocomplete="off" maxlength="20">
+                    <button id="adminPassBtn">ВОЙТИ →</button>
+                    <div class="admin-auth-error" id="adminAuthError"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основная панель -->
+        <div id="adminMainScreen" class="hidden">
+
+            <!-- Форма добавления -->
+            <div class="admin-add-form">
+                <div class="admin-section-title">// ДОБАВИТЬ КАМЕРУ</div>
+                <div class="admin-form-row">
+                    <input type="text" id="adminCamName" placeholder="Название камеры" autocomplete="off">
+                    <input type="text" id="adminCamUrl" placeholder="rtsp://..." autocomplete="off">
+                    <button id="adminAddBtn">+ ДОБАВИТЬ</button>
+                </div>
+                <div class="admin-add-error" id="adminAddError"></div>
+            </div>
+
+            <!-- Две колонки -->
+            <div class="admin-columns">
+
+                <!-- Левая — недоступные -->
+                <div class="admin-column" id="colDisabled">
+                    <div class="admin-col-header">
+                        <span class="col-dot col-dot-off"></span>
+                        НЕДОСТУПНЫЕ
+                        <span class="col-count" id="countDisabled">0</span>
+                    </div>
+                    <div class="admin-col-body" id="listDisabled"
+                         data-enabled="false"
+                         ondragover="adminDragOver(event)"
+                         ondrop="adminDrop(event, false)"
+                         ondragleave="adminDragLeave(event)">
+                        <div class="col-empty">Перетащи камеру сюда</div>
+                    </div>
+                </div>
+
+                <!-- Правая — доступные -->
+                <div class="admin-column" id="colEnabled">
+                    <div class="admin-col-header">
+                        <span class="col-dot col-dot-on"></span>
+                        ДОСТУПНЫЕ
+                        <span class="col-count" id="countEnabled">0</span>
+                    </div>
+                    <div class="admin-col-body" id="listEnabled"
+                         data-enabled="true"
+                         ondragover="adminDragOver(event)"
+                         ondrop="adminDrop(event, true)"
+                         ondragleave="adminDragLeave(event)">
+                        <div class="col-empty">Перетащи камеру сюда</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
