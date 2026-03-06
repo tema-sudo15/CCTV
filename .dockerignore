@@ -1,0 +1,6 @@
+node_modules
+hls
+recordings
+*.log
+.git
+.gitignore
