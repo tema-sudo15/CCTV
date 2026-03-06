@@ -21,13 +21,3 @@ RUN mkdir -p hls recordings
 EXPOSE 3000
 
 CMD ["node", "server.js"]
-```
-
-**`.dockerignore`** (тоже нужен чтобы не копировать лишнее):
-```
-node_modules
-hls
-recordings
-*.log
-.git
-.gitignore
