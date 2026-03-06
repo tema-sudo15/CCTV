@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: cctv-grid
+    runtime: docker
+    plan: free
+    envVars:
+      - key: ADMIN_PASS
+        value: 546546
+```
+
+Всё. Структура репозитория целиком:
+```
+cctv-grid/
+├── Dockerfile
+├── .dockerignore
+├── package.json
+├── render.yaml
+├── server.js
+├── cameras.json       ← создаётся автоматически
+└── public/
+    ├── index.html
+    ├── style.css
+    └── app.js
