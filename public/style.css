@@ -1,0 +1,667 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg:        #030303;
+    --bg2:       #080808;
+    --bg3:       #0d0d0d;
+    --border:    #141414;
+    --border2:   #1e1e1e;
+    --red:       #ff2a1f;
+    --red-dim:   #3a0a08;
+    --text:      #c8c8c8;
+    --text-dim:  #444;
+    --text-dark: #222;
+    --mono:      'Space Mono', monospace;
+    --sans:      'Rajdhani', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); }
+
+/* ── SHELL ───────────────────────────────── */
+.shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, #0a0a0a 39px, #0a0a0a 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, #0a0a0a 39px, #0a0a0a 40px);
+    background-size: 40px 40px;
+}
+
+/* ── ТОПБАР ──────────────────────────────── */
+.topbar {
+    height: 52px;
+    background: rgba(3,3,3,0.97);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    flex-shrink: 0;
+    gap: 20px;
+    position: relative;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+}
+.topbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    opacity: 0.4;
+}
+
+.topbar-left  { display:flex; align-items:center; gap:20px; flex:1; }
+.topbar-center { display:flex; align-items:center; justify-content:center; }
+.topbar-right { display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex:1; }
+
+.topbar-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+.logo-bracket { color: var(--text-dim); }
+.logo-slash   { color: var(--red); margin: 0 4px; }
+
+.topbar-status { display:flex; align-items:center; gap:8px; }
+.status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-dark); flex-shrink: 0;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+.status-dot.online  { background: var(--red); box-shadow: 0 0 8px var(--red); animation: blink 1.5s infinite; }
+.status-dot.offline { background: #2a2a2a; }
+.status-text {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.topbar-time {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 3px;
+    font-variant-numeric: tabular-nums;
+}
+.topbar-date {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-dark);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ── ВЫБОР СЕТКИ ─────────────────────────── */
+.grid-selector {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px;
+}
+.grid-btn {
+    width: 32px; height: 32px;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    padding: 6px;
+}
+.grid-btn svg { width:100%; height:100%; fill:var(--text-dim); transition:fill 0.15s; }
+.grid-btn:hover { background: var(--bg3); border-color: var(--border2); }
+.grid-btn:hover svg { fill: #888; }
+.grid-btn.active { background: var(--red-dim); border-color: var(--red); }
+.grid-btn.active svg { fill: var(--red); }
+
+/* ── СЕТКА КАМЕР ─────────────────────────── */
+.grid-main {
+    flex: 1;
+    overflow: hidden;
+    display: grid;
+    gap: 2px;
+    padding: 2px;
+    min-height: 0;
+    transition: grid-template-columns 0.3s, grid-template-rows 0.3s;
+}
+
+/* Режимы сетки */
+.grid-main.grid-1 {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+.grid-main.grid-2 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+.grid-main.grid-4 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+.grid-main.grid-8 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(4, 1fr);
+}
+
+/* ── ЯЧЕЙКА КАМЕРЫ ───────────────────────── */
+.cam-cell {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-height: 0;
+}
+.cam-cell:hover { border-color: #2a2a2a; }
+.cam-cell.active { border-color: var(--red); }
+.cam-cell.active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--red);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Угловые декораторы */
+.cam-cell::after {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 12px; height: 12px;
+    border-top: 1px solid var(--text-dark);
+    border-left: 1px solid var(--text-dark);
+    pointer-events: none;
+    z-index: 4;
+    transition: border-color 0.2s;
+}
+.cam-cell.active::after { border-color: var(--red); }
+
+.cam-cell-corner-br {
+    position: absolute;
+    bottom: 6px; right: 6px;
+    width: 12px; height: 12px;
+    border-bottom: 1px solid var(--text-dark);
+    border-right: 1px solid var(--text-dark);
+    pointer-events: none;
+    z-index: 4;
+    transition: border-color 0.2s;
+}
+.cam-cell.active .cam-cell-corner-br { border-color: var(--red); }
+
+/* Видео */
+.cam-cell video {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
+}
+
+/* Оверлей загрузки */
+.cam-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; z-index: 5;
+    transition: opacity 0.3s;
+}
+.cam-overlay.hidden { opacity:0; pointer-events:none; }
+
+.cam-spinner {
+    width: 24px; height: 24px;
+    border: 1px solid var(--border2);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+.cam-overlay-text {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* Оверлей ошибки */
+.cam-error {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; z-index: 5;
+}
+.cam-error.hidden { display:none; }
+.cam-error-icon  { font-size:20px; color:var(--red); }
+.cam-error-title { font-family:var(--mono); font-size:9px; color:var(--red); letter-spacing:3px; }
+.cam-error-msg   { font-family:var(--mono); font-size:9px; color:var(--text-dark); text-align:center; max-width:160px; line-height:1.6; }
+.cam-retry-btn {
+    margin-top: 4px;
+    background: none; border: 1px solid var(--border2);
+    color: var(--text-dim); padding: 5px 12px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 2px; cursor: pointer;
+    text-transform: uppercase; transition: 0.2s;
+    border-radius: 3px;
+}
+.cam-retry-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* Пустая ячейка */
+.cam-empty {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+}
+.cam-empty-icon {
+    font-family: var(--mono);
+    font-size: 28px;
+    color: var(--text-dark);
+    opacity: 0.4;
+}
+.cam-empty-text {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-dark);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.cam-empty-num {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dark);
+    opacity: 0.3;
+}
+
+/* Лейбл камеры */
+.cam-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 12px 8px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 4;
+    opacity: 0; transition: opacity 0.2s;
+}
+.cam-cell:hover .cam-label,
+.cam-cell.active .cam-label { opacity: 1; }
+
+.cam-label-name {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.cam-label-live {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--red);
+    letter-spacing: 2px;
+    display: flex; align-items: center; gap: 4px;
+}
+.cam-label-live::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--red);
+    animation: blink 1.5s infinite;
+}
+
+/* Номер ячейки */
+.cam-cell-num {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dark);
+    z-index: 4;
+    pointer-events: none;
+}
+
+/* ── ПАНЕЛЬ КАМЕР (снизу) ────────────────── */
+.cam-panel {
+    height: 72px;
+    background: rgba(3,3,3,0.97);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+}
+.cam-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    opacity: 0.3;
+}
+.cam-panel-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    padding: 0 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+.cam-panel-inner::-webkit-scrollbar { height: 2px; }
+.cam-panel-inner::-webkit-scrollbar-thumb { background: var(--border2); }
+
+/* Кнопка камеры в панели */
+.cam-thumb {
+    height: 52px;
+    min-width: 88px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    padding: 0 10px;
+}
+.cam-thumb::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: var(--red);
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.cam-thumb:hover { border-color: var(--border2); background: var(--bg3); }
+.cam-thumb:hover::before { opacity: 0.5; }
+.cam-thumb.in-use { border-color: var(--red); background: var(--red-dim); }
+.cam-thumb.in-use::before { opacity: 1; }
+
+.cam-thumb-name {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+    text-align: center;
+}
+.cam-thumb.in-use .cam-thumb-name { color: #fff; }
+.cam-thumb-status {
+    font-family: var(--mono);
+    font-size: 7px;
+    color: var(--text-dark);
+    letter-spacing: 2px;
+}
+.cam-thumb.in-use .cam-thumb-status { color: var(--red); }
+
+.cam-panel-empty {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dark);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: auto;
+}
+
+/* ── АДМИН ПАНЕЛЬ ────────────────────────── */
+.admin-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+.admin-overlay.hidden { display:none; }
+
+.admin-panel {
+    width: 820px;
+    max-width: 96vw;
+    max-height: 88vh;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,42,31,0.1);
+    animation: slideUp 0.25s ease;
+}
+
+.admin-header {
+    padding: 16px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+    position: relative;
+}
+.admin-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    opacity: 0.4;
+}
+.admin-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 3px;
+}
+.admin-close {
+    background: none; border: 1px solid var(--border2);
+    color: var(--text-dim); width: 28px; height: 28px;
+    border-radius: 4px; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.15s; line-height: 1;
+}
+.admin-close:hover { border-color: var(--red); color: var(--red); }
+
+/* Авторизация */
+.admin-auth {
+    padding: 48px 32px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 12px;
+}
+.admin-auth-icon {
+    font-size: 32px; color: var(--text-dark);
+    margin-bottom: 8px;
+    animation: pulse 3s infinite;
+}
+.admin-auth-title {
+    font-family: var(--mono); font-size: 14px;
+    font-weight: 700; color: #fff; letter-spacing: 4px;
+}
+.admin-auth-sub {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 2px;
+}
+.admin-auth-form {
+    display: flex; flex-direction: column; gap: 10px;
+    width: 280px; margin-top: 16px;
+}
+.admin-auth-form input {
+    background: var(--bg2); border: 1px solid var(--border2);
+    color: #fff; padding: 12px 16px; border-radius: 5px;
+    outline: none; font-family: var(--mono); font-size: 16px;
+    text-align: center; letter-spacing: 8px; transition: 0.2s;
+}
+.admin-auth-form input:focus { border-color: var(--red); }
+.admin-auth-form button {
+    background: var(--red); color: #fff; border: none;
+    padding: 12px; border-radius: 5px; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    cursor: pointer; transition: 0.15s;
+}
+.admin-auth-form button:hover { background: #e02018; }
+.admin-auth-error {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--red); letter-spacing: 2px; text-align: center;
+}
+
+/* Форма добавления */
+.admin-add-form {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.admin-section-title {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--text-dark); letter-spacing: 3px;
+    margin-bottom: 10px; text-transform: uppercase;
+}
+.admin-form-row {
+    display: flex; gap: 8px;
+}
+.admin-form-row input {
+    flex: 1; background: var(--bg2);
+    border: 1px solid var(--border); color: #fff;
+    padding: 9px 12px; border-radius: 4px;
+    outline: none; font-family: var(--sans);
+    font-size: 13px; transition: 0.2s;
+}
+.admin-form-row input:focus { border-color: var(--border2); }
+.admin-form-row input::placeholder { color: var(--text-dark); }
+.admin-form-row button {
+    background: #fff; color: #000; border: none;
+    padding: 9px 16px; border-radius: 4px;
+    font-family: var(--mono); font-size: 10px;
+    font-weight: 700; letter-spacing: 2px;
+    cursor: pointer; transition: 0.15s; white-space: nowrap;
+}
+.admin-form-row button:hover { background: #ddd; }
+.admin-add-error {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--red); letter-spacing: 1px; margin-top: 6px;
+}
+
+/* Две колонки */
+.admin-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    flex: 1;
+    overflow: hidden;
+    background: var(--border);
+}
+.admin-column {
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.admin-col-header {
+    padding: 12px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: 9px;
+    color: var(--text-dim); letter-spacing: 3px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+}
+.col-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.col-dot-off { background: #2a2a2a; }
+.col-dot-on  { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.col-count {
+    margin-left: auto;
+    background: var(--bg3); color: var(--text-dark);
+    font-size: 9px; padding: 2px 7px; border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.admin-col-body {
+    flex: 1; overflow-y: auto;
+    padding: 8px;
+    display: flex; flex-direction: column; gap: 6px;
+    min-height: 200px;
+    transition: background 0.15s;
+}
+.admin-col-body::-webkit-scrollbar { width: 3px; }
+.admin-col-body::-webkit-scrollbar-thumb { background: var(--border2); }
+.admin-col-body.drag-over { background: rgba(255,42,31,0.04); }
+
+.col-empty {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--text-dark); letter-spacing: 2px;
+    text-align: center; padding: 20px;
+    border: 1px dashed var(--border);
+    border-radius: 4px; margin: 4px;
+}
+
+/* Карточка камеры в админке */
+.admin-cam-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    cursor: grab;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.15s;
+    user-select: none;
+}
+.admin-cam-card:hover { border-color: var(--border2); background: var(--bg3); }
+.admin-cam-card.dragging { opacity: 0.3; cursor: grabbing; }
+.admin-cam-card.enabled { border-left: 2px solid var(--red); }
+
+.drag-handle {
+    color: var(--text-dark); font-size: 12px;
+    flex-shrink: 0; cursor: grab;
+}
+.admin-cam-info { flex: 1; min-width: 0; }
+.admin-cam-name {
+    font-family: var(--sans); font-size: 13px;
+    font-weight: 600; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: 1px;
+}
+.admin-cam-url {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--text-dark); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.admin-cam-del {
+    background: none; border: 1px solid var(--border);
+    color: var(--text-dark); width: 24px; height: 24px;
+    border-radius: 3px; cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.15s; flex-shrink: 0; line-height: 1;
+}
+.admin-cam-del:hover { border-color: var(--red); color: var(--red); }
+
+/* ── УТИЛИТЫ ─────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ── АНИМАЦИИ ────────────────────────────── */
+@keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0.2} }
+@keyframes spin    { to{transform:rotate(360deg)} }
+@keyframes pulse   { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
